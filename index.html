@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salão de beleza</title>
+</head>
+
+<body>
+    Selecione o Serviço: <select id="select_servico">
+        <option value="#">Escolha uma opção</option>
+        <option value="manicure">Manicure</option>
+        <option value="barba">Barba</option>
+        <option value="cabelo">Cabelo</option>
+    </select> <br>
+
+
+    Selecione o Dia: <select id="select_dia">
+        <option value="#">Escolha uma opção</option>
+        <option value="segunda"> Segunda-feira </option>
+        <option value="terça"> Terça-feira </option>
+        <option value="quarta"> Quarta-feira </option>
+        <option value="quinta"> Quinta-feira </option>
+        <option value="sexta"> Sexta-feira </option>
+        <option value="sábado"> Sábado </option>
+        <option value="domingo"> Domingo </option>
+    </select> <br>
+
+    Selecione o Horário: <select id="select_horario">
+        <option value="#">Escolha uma opção</option>
+        <option value="0"> 00:00h </option>
+        <option value="1"> 01:00h </option>
+        <option value="2"> 02:00h </option>
+        <option value="3"> 03:00h </option>
+        <option value="4"> 04:00h </option>
+        <option value="5"> 05:00h </option>
+        <option value="6"> 06:00h </option>
+        <option value="7"> 07:00h </option>
+        <option value="8"> 08:00h </option>
+        <option value="9"> 09:00h </option>
+        <option value="10"> 10:00h </option>
+        <option value="11"> 11:00h </option>
+        <option value="12"> 12:00h </option>
+        <option value="13"> 13:00h </option>
+        <option value="14"> 14:00h </option>
+        <option value="15"> 15:00h </option>
+        <option value="16"> 16:00h </option>
+        <option value="17"> 17:00h </option>
+        <option value="18"> 18:00h </option>
+        <option value="19"> 19:00h </option>
+        <option value="20"> 20:00h </option>
+        <option value="21"> 21:00h </option>
+        <option value="22"> 22:00h </option>
+        <option value="23"> 23:00h </option>
+    </select> <br>
+
+    Qual será a recorrência de atendimentos em 1 ano? <input type="number" id="input_recorrencia"> <br>
+
+    <button onclick="realizar()">Realizar Orçamento</button>
+
+    <div id="div_resultado"></div>
+
+</body>
+
+</html>
+
+<script>
+
+    //campo 9 -  não tem sentido
+
+    //variaveis de campos
+    var servico = '';
+    var dia = '';
+    var horario = '';
+    var recorrencia = '';
+
+    //variaveis de validacao
+    var validacao_campos = false;
+    var validacao_disponibilidade = false;
+
+    //variavel de mensagem
+    var mensagem_principal = '';
+
+    //controladores
+        //preços    
+        var preco_manicure = 20;
+        var preco_barba = 15;
+        var preco_cabelo = 30;
+        var preco_final = 0;
+        var preco_original = 0;
+    
+        //descontos ou gratuidade
+        var desconto = 0;
+        var dia_gratis = 0;
+        
+        // variaveis acumulativas
+        var qtd_gratis = 0;
+        var valor_final = 0;
+
+    function realizar() {
+
+        mensagem_principal = '';
+
+        servico = select_servico.value;
+        dia = select_dia.value;
+        horario = select_horario.value; //não transformei em numero ainda para não falhar a validacao
+        recorrencia = Number(input_recorrencia.value);
+
+        validar_campos();
+
+        if (validacao_campos == true) {
+
+            horario = Number(horario);
+            validar_disponibilidade();
+
+            if (validacao_disponibilidade == true) {
+
+                exibir_mensagem_final();
+            }
+
+            
+        }
+        div_resultado.innerHTML = `${mensagem_principal}`;
+    }
+
+    function validar_campos() {
+        // Valide se todos os campos estão preenchidos;
+        //     Caso algum campo esteja vazio, exiba a mensagem 
+        // "Preencha todos os campos para prosseguir" abaixo do botão e não faça mais nada. 
+
+        if (servico == '#' || dia == '#' || horario == '#' || recorrencia == '') {
+            validacao_campos = false;
+        } else {
+            validacao_campos = true;
+        }
+
+        if (validacao_campos == false) {
+            mensagem_principal = 'Preencha todos os campos para prosseguir';
+        }
+    }
+
+    function validar_disponibilidade() {
+        // Valide se o serviço selecionado está disponível no horário solicitado pelo usuário  (de acordo com a coluna Horário de Atendimento da tabela)
+        // Caso o horário solicitado esteja fora do intervalo do horário de atendimento do serviço, exiba a mensagem "O serviço selecionado não está disponível para esse horário" abaixo do botão e não faça mais nada.
+
+
+        if (servico == 'manicure') {
+            if (horario >= 8 && horario <= 16) {
+                validacao_disponibilidade = true;
+            } else {
+                validacao_disponibilidade = false;
+            }
+        } else if (servico == 'barba') {
+            if (horario >= 13 && horario <= 20) {
+                validacao_disponibilidade = true;
+            } else {
+                validacao_disponibilidade = false;
+            }
+        } else if (servico == 'cabelo') {
+            if (horario >= 0 && horario <= 23) {
+                validacao_disponibilidade = true;
+            } else {
+                validacao_disponibilidade = false;
+            }
+        }
+
+        if (validacao_disponibilidade == false) {
+            mensagem_principal = 'O serviço selecionado não está disponível para esse horário';
+        }
+    }
+
+    function validar_preco() {
+        //     Caso todas as entradas sejam válidas: 
+        //     de acordo com o serviço e o dia selecionados, calcule o preço do serviço escolhido, verificando se possui o desconto promocional do dia (de acordo com a coluna Promoção do Dia da tabela)
+
+        if (servico == 'manicure') {
+            preco_original = preco_manicure;
+            dia_gratis = 3;
+
+            if (dia == 'terça' || dia == 'quinta') {
+                desconto = 4;
+                preco_final = preco_manicure - desconto;
+            } else {
+                preco_final = preco_manicure
+            }
+        } else if (servico == 'barba') {
+            dia_gratis = 4;
+            preco_original = preco_barba;
+            if (dia == 'segunda' || dia == 'quarta') {
+                desconto = 3;
+                preco_final = preco_barba - desconto;
+            } else {
+                preco_final = preco_barba;
+            }
+        } else if (servico == 'cabelo') {
+            preco_original = preco_cabelo;
+            dia_gratis = 6;
+            if (dia == 'sexta' || dia == 'sábado' || dia == 'domingo') {
+                desconto = 5;
+                preco_final = preco_cabelo - desconto;
+            } else {
+                preco_final = preco_cabelo
+            }
+        }
+
+    }
+
+    function exibir_mensagem_final() {
+        qtd_gratis = 0;
+        preco_original = 0;
+        preco_final = 0;
+        valor_final = 0;
+        desconto = 0;
+        //     Frase a exibir: 
+        //         "Atendimento AA - Serviço: BB | Dia: CC | Hora: DD | Preço Serviço: EE | Desconto: FF | Preço Final: GG / 0";
+        //         AA o número do atendimento atual (vai de 1 até a quantidade da recorrência)
+        //         BB o serviço informado
+        //         CC o dia informado
+        //         DD a hora informada
+        //         EE o preço original do serviço
+        //         FF o desconto do serviço
+        //         GG o preço final do serviço após o desconto
+
+        //         Durante a exibição das frases de recorrências, verifique se há gratuidade nos atendimentos, onde a cada “X” atendimentos, um deve ser gratuito (de acordo com a coluna Fidelidade da tabela)
+
+        //         Se o atendimento for gratuito, exiba 0 no Preço Final
+
+        //         Após as exibições de todas as recorrências de atendimento, exiba o valor final do orçamento:
+        // "Ao longo do ano, você será atendido AA vezes, sendo BB serviços grátis devido à fidelidade, onde o valor final do orçamento será de CC."
+        // Sendo:
+        // AA a quantidade de atendimentos realizados;
+        // BB é a quantidade de serviços gratis;
+        // CC é o valor final do orçamento, sendo a somatória dos preços de todos os atendimentos listados; 
+
+        for (var i = 1; i <= recorrencia; i++) {
+
+            if (i % dia_gratis == 0) {
+                preco_original = 0;
+                preco_final = 0;
+                qtd_gratis ++;
+            } else {
+                validar_preco();
+            }
+
+            valor_final += preco_final;
+
+            mensagem_principal += `Atendimento ${i} - Serviço: ${servico} | Dia: ${dia} | Hora: ${horario} | Preço Serviço: ${preco_original}  | Desconto: ${desconto} | Preço Final: ${preco_final} <br>`;
+        }
+
+        mensagem_principal += `<br>Ao longo do ano, você será atendido ${recorrencia} vezes, sendo ${qtd_gratis} serviços grátis devido à fidelidade, onde o valor final do orçamento será de ${valor_final}.`
+
+
+    }
+</script>
